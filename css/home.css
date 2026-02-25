@@ -5,7 +5,7 @@ header {
     padding: 15px 20px;
 }
 i {
-    font-size: 20px;
+    font-size: 25px;
 }
 .intro {
     padding: 20px;
@@ -14,6 +14,9 @@ i {
 }
 .intro > div {
     max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .intro > button {
     background-color: #8BA17A;
@@ -21,6 +24,8 @@ i {
     border: none;
     padding: 10px;
     border-radius: 20px;
+    max-height: 40px;
+    width: 30vw;
 }
 .viagens {
     padding: 20px;
@@ -31,4 +36,14 @@ i {
     color: white;
     border-radius: 20px;
     padding: 10px;
+    max-height: 40px;
+}
+@media (max-width: 768px) {
+    .intro {
+        flex-direction: column;
+    }
+    .intro button {
+        width: 100%;
+        margin-top: 20px;
+    }
 }

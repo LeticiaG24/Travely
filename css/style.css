@@ -1,9 +1,16 @@
 body {
     background-color: #D3D5C8;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+    font-family: "Libre Caslon Text", serif;
 }
 * {
     margin: 0;
 }
 button {
     cursor: pointer;
+    font-family: "Libre Caslon Text", serif;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+}
+h1, h2, h3 {
+    font-weight: normal;
 }
