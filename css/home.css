@@ -1,0 +1,34 @@
+header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+}
+i {
+    font-size: 20px;
+}
+.intro {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+.intro > div {
+    max-width: 500px;
+}
+.intro > button {
+    background-color: #8BA17A;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 20px;
+}
+.viagens {
+    padding: 20px;
+}
+.viagens > div > button {
+    background-color: #8BA17A;
+    border: none;
+    color: white;
+    border-radius: 20px;
+    padding: 10px;
+}
