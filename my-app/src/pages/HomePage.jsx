@@ -1,28 +1,11 @@
 import { useState, createContext, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-export interface ItemItinerario { id: number; dia: string; nome: string; hora: string; }
-export interface Reserva        { id: number; nome: string; horario: string; }
-export interface Despesa        { id: number; nome: string; valor: string; tipo: string; }
-export interface Trip {
-  id: number;
-  nome: string;
-  inicio: string;
-  fim: string;
-  destinos: string[];
-  status: "planejada" | "concluida";
-  itinerario: ItemItinerario[];
-  reservas: Reserva[];
-  orcamento: { total: string; despesas: Despesa[] };
-}
-
 // ─── Global state via Context (simples, sem lib externa) ──────────────────────
-interface TripsCtx { trips: Trip[]; addTrip: (t: Trip) => void; updateTrip: (t: Trip) => void; }
-const TripsContext = createContext<TripsCtx>(null!);
+const TripsContext = createContext(null);
 export function useTrips() { return useContext(TripsContext); }
 
-const INITIAL_TRIPS: Trip[] = [
+const INITIAL_TRIPS = [
   {
     id: 1,
     nome: "Europa 2026",
@@ -56,10 +39,10 @@ const INITIAL_TRIPS: Trip[] = [
   },
 ];
 
-export function TripsProvider({ children }: { children: React.ReactNode }) {
-  const [trips, setTrips] = useState<Trip[]>(INITIAL_TRIPS);
-  const addTrip    = (t: Trip) => setTrips((p) => [...p, t]);
-  const updateTrip = (updated: Trip) => setTrips((p) => p.map((t) => (t.id === updated.id ? updated : t)));
+export function TripsProvider({ children }) {
+  const [trips, setTrips] = useState(INITIAL_TRIPS);
+  const addTrip    = (t) => setTrips((p) => [...p, t]);
+  const updateTrip = (updated) => setTrips((p) => p.map((t) => (t.id === updated.id ? updated : t)));
   return <TripsContext.Provider value={{ trips, addTrip, updateTrip }}>{children}</TripsContext.Provider>;
 }
 
@@ -147,16 +130,15 @@ const style = `
 `;
 
 // ─── Modals ───────────────────────────────────────────────────────────────────
-function ModalNovaViagem({ onClose, onSave }: { onClose: () => void; onSave: (t: Trip) => void }) {
+function ModalNovaViagem({ onClose, onSave }) {
   const [form, setForm] = useState({ nome: "", inicio: "", fim: "", destinos: "", status: "planejada" });
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const save = () => {
     if (!form.nome.trim()) return;
     onSave({
       id: Date.now(), nome: form.nome, inicio: form.inicio, fim: form.fim,
       destinos: form.destinos.split(",").map((d) => d.trim()).filter(Boolean),
-      status: form.status as Trip["status"],
+      status: form.status,
       itinerario: [], reservas: [], orcamento: { total: "R$ 0,00", despesas: [] },
     });
     onClose();
@@ -184,9 +166,9 @@ function ModalNovaViagem({ onClose, onSave }: { onClose: () => void; onSave: (t:
   );
 }
 
-function ModalItinerario({ onClose, onSave }: { onClose: () => void; onSave: (i: ItemItinerario) => void }) {
+function ModalItinerario({ onClose, onSave }) {
   const [form, setForm] = useState({ dia: "", nome: "", hora: "" });
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const save = () => { if (!form.nome.trim()) return; onSave({ id: Date.now(), ...form }); onClose(); };
   return (
     <div className="t-overlay" onClick={onClose}>
@@ -204,9 +186,9 @@ function ModalItinerario({ onClose, onSave }: { onClose: () => void; onSave: (i:
   );
 }
 
-function ModalReserva({ onClose, onSave }: { onClose: () => void; onSave: (r: Reserva) => void }) {
+function ModalReserva({ onClose, onSave }) {
   const [form, setForm] = useState({ nome: "", horario: "" });
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const save = () => { if (!form.nome.trim()) return; onSave({ id: Date.now(), ...form }); onClose(); };
   return (
     <div className="t-overlay" onClick={onClose}>
@@ -223,9 +205,9 @@ function ModalReserva({ onClose, onSave }: { onClose: () => void; onSave: (r: Re
   );
 }
 
-function ModalDespesa({ onClose, onSave }: { onClose: () => void; onSave: (d: Despesa) => void }) {
+function ModalDespesa({ onClose, onSave }) {
   const [form, setForm] = useState({ nome: "", valor: "", tipo: "Transporte" });
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const save = () => { if (!form.nome.trim()) return; onSave({ id: Date.now(), ...form }); onClose(); };
   return (
     <div className="t-overlay" onClick={onClose}>
@@ -253,7 +235,7 @@ function ModalDespesa({ onClose, onSave }: { onClose: () => void; onSave: (d: De
 export function HomePage() {
   const { trips, addTrip } = useTrips();
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<"todas" | "concluídas" | "planejadas">("todas");
+  const [filter, setFilter] = useState("todas");
   const [showModal, setShowModal] = useState(false);
 
   const visible = trips.filter((t) => {
@@ -281,7 +263,7 @@ export function HomePage() {
       <hr />
       <section className="t-viagens">
         <div className="t-filter-row">
-          {(["todas", "concluídas", "planejadas"] as const).map((f) => (
+          {["todas", "concluídas", "planejadas"].map((f) => (
             <button key={f} className={`t-filter-btn ${filter === f ? "active" : ""}`} onClick={() => setFilter(f)}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
@@ -314,21 +296,21 @@ export function HomePage() {
 
 /** Rota: "/viagem/:id" */
 export function ViagemPage() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const { trips, updateTrip } = useTrips();
   const navigate = useNavigate();
   const [fabOpen, setFabOpen] = useState(false);
-  const [modal, setModal] = useState<"itinerario" | "reserva" | "despesa" | null>(null);
+  const [modal, setModal] = useState(null);
 
   const trip = trips.find((t) => t.id === Number(id));
   if (!trip) return <p style={{ padding: 20 }}>Viagem não encontrada. <button onClick={() => navigate("/")}>Voltar</button></p>;
 
-  const openModal = (type: typeof modal) => { setModal(type); setFabOpen(false); };
-  const addItinerario = (item: ItemItinerario) => updateTrip({ ...trip, itinerario: [...trip.itinerario, item] });
-  const addReserva    = (item: Reserva)        => updateTrip({ ...trip, reservas: [...trip.reservas, item] });
-  const addDespesa    = (item: Despesa)        => updateTrip({ ...trip, orcamento: { ...trip.orcamento, despesas: [...trip.orcamento.despesas, item] } });
+  const openModal = (type) => { setModal(type); setFabOpen(false); };
+  const addItinerario = (item) => updateTrip({ ...trip, itinerario: [...trip.itinerario, item] });
+  const addReserva    = (item) => updateTrip({ ...trip, reservas: [...trip.reservas, item] });
+  const addDespesa    = (item) => updateTrip({ ...trip, orcamento: { ...trip.orcamento, despesas: [...trip.orcamento.despesas, item] } });
 
-  const groupedDias = trip.itinerario.reduce<Record<string, ItemItinerario[]>>((acc, item) => {
+  const groupedDias = trip.itinerario.reduce((acc, item) => {
     const key = item.dia || "Sem data";
     if (!acc[key]) acc[key] = [];
     acc[key].push(item);
